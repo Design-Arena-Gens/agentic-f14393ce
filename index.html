@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toyota Logo Downloader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .logo-container {
+            background: #f5f5f5;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            min-height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-container img {
+            max-width: 100%;
+            height: auto;
+            max-height: 300px;
+        }
+
+        .loading {
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+            margin: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 20px;
+            padding: 15px;
+            background: #ffeaa7;
+            border-radius: 10px;
+        }
+
+        .success {
+            color: #27ae60;
+            margin-top: 20px;
+            padding: 15px;
+            background: #d5f4e6;
+            border-radius: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚗 Toyota Logo Downloader</h1>
+        <p style="color: #666; margin-bottom: 20px;">Fetch and download the official Toyota logo</p>
+
+        <div class="button-group">
+            <button onclick="fetchLogo()">Fetch Toyota Logo</button>
+            <button id="downloadBtn" onclick="downloadLogo()" style="display: none;">Download Logo</button>
+        </div>
+
+        <div class="logo-container" id="logoContainer">
+            <div class="loading" id="placeholder">Click the button above to fetch the Toyota logo</div>
+        </div>
+
+        <div id="message"></div>
+    </div>
+
+    <script>
+        let currentLogoUrl = '';
+
+        async function fetchLogo() {
+            const container = document.getElementById('logoContainer');
+            const message = document.getElementById('message');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            container.innerHTML = '<div class="loading">Fetching Toyota logo...</div>';
+            message.innerHTML = '';
+            downloadBtn.style.display = 'none';
+
+            try {
+                // Using Toyota's official logo from their Wikipedia page
+                const logoUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Toyota.svg/2560px-Toyota.svg.png';
+
+                // Create image element
+                const img = document.createElement('img');
+                img.src = logoUrl;
+                img.alt = 'Toyota Logo';
+
+                img.onload = () => {
+                    container.innerHTML = '';
+                    container.appendChild(img);
+                    currentLogoUrl = logoUrl;
+                    downloadBtn.style.display = 'inline-block';
+                    message.innerHTML = '<div class="success">✓ Toyota logo loaded successfully!</div>';
+                };
+
+                img.onerror = () => {
+                    throw new Error('Failed to load image');
+                };
+
+            } catch (error) {
+                container.innerHTML = '<div class="loading">Failed to load logo</div>';
+                message.innerHTML = `<div class="error">Error: ${error.message}. Please try again.</div>`;
+            }
+        }
+
+        async function downloadLogo() {
+            if (!currentLogoUrl) return;
+
+            try {
+                const response = await fetch(currentLogoUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'toyota-logo.png';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                document.getElementById('message').innerHTML = '<div class="success">✓ Logo downloaded successfully!</div>';
+            } catch (error) {
+                document.getElementById('message').innerHTML = `<div class="error">Download failed: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
